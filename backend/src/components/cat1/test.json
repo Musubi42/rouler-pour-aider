@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_cat1_tests",
+  "info": {
+    "displayName": "test",
+    "icon": "alien"
+  },
+  "options": {},
+  "attributes": {
+    "test": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

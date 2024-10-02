@@ -1,0 +1,18 @@
+{
+  "kind": "singleType",
+  "collectionName": "sts",
+  "info": {
+    "singularName": "st",
+    "pluralName": "sts",
+    "displayName": "st"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "test": {
+      "type": "string"
+    }
+  }
+}

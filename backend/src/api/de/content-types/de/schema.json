@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "des",
+  "info": {
+    "singularName": "de",
+    "pluralName": "des",
+    "displayName": "de"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "de": {
+      "type": "component",
+      "repeatable": true,
+      "component": "cat1.test"
+    }
+  }
+}

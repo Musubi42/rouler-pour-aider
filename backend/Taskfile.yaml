@@ -1,0 +1,205 @@
+# Taskfile.yml
+
+version: '3'
+
+vars:
+  AGE_KEY:
+    sh: less ./.secrets/ageKey.tmp
+
+tasks:
+  prompt-age-key:
+    cmds:
+      - |
+        echo "Enter your age key: "
+        read AGE_KEY
+        if [ -z "$AGE_KEY" ]; then
+          echo "Error: You need the age key to decrypt secrets" && exit 1
+        fi
+        echo "$AGE_KEY" > .secrets/ageKey.tmp
+
+  delete-age-key:
+    cmds:
+      - rm -f .secrets/ageKey.tmp
+
+  delete-dotEnv-file:
+    cmds:
+      - rm -f .env
+
+  encrypt-dev-infisical-secrets:
+    cmds:
+      - echo "Encrypting Infisical secrets..."
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/client_id-dev.txt > .secrets/client_id-dev.enc.txt
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/client_secret-dev.txt > .secrets/client_secret-dev.enc.txt
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/infisical-agent-dev.yaml > .secrets/infisical-agent-dev.enc.yaml
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/secret-template-dev > .secrets/secret-template-dev.enc
+
+  encrypt-prod-infisical-secrets:
+    cmds:
+      - echo "Encrypting Infisical secrets..."
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/client_id-prod.txt > .secrets/client_id-prod.enc.txt
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/client_secret-prod.txt > .secrets/client_secret-prod.enc.txt
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/infisical-agent-prod.yaml > .secrets/infisical-agent-prod.enc.yaml
+      - sops encrypt --age "{{.AGE_KEY}}" .secrets/secret-template-prod > .secrets/secret-template-prod.enc
+
+  delete-infisical-decrypted-secrets:
+    cmds:
+      - echo "Deleting Infisical secrets..."
+      # -f to delete if exist or not
+      - rm -f .secrets/client_id-dev.txt
+      - rm -f .secrets/client_id-prod.txt
+      - rm -f .secrets/client_secret-dev.txt
+      - rm -f .secrets/client_secret-prod.txt
+      - rm -f .secrets/infisical-agent-dev.yaml
+      - rm -f .secrets/infisical-agent-prod.yaml
+      - rm -f .secrets/secret-template-dev
+      - rm -f .secrets/secret-template-prod
+      - rm -f .secrets/agent-infisical-token
+
+  delete-infisical-encrypted-secrets:
+    cmds:
+      - echo "Deleting Infisical secrets..."
+      - rm -f .secrets/*.enc*
+
+  decrypt-dev-infisical-secrets:
+    cmds:
+      - echo "{{.AGE_KEY}}"
+      - echo "Decrypting Infisical secrets..."
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/client_id-dev.enc.txt > .secrets/client_id-dev.txt
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/client_secret-dev.enc.txt > .secrets/client_secret-dev.txt
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/infisical-agent-dev.enc.yaml > .secrets/infisical-agent-dev.yaml
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/secret-template-dev.enc > .secrets/secret-template-dev
+      - echo "Infisical secrets decrypted."
+    
+  decrypt-prod-infisical-secrets:
+    cmds:
+      - echo "{{.AGE_KEY}}"
+      - echo "Decrypting Infisical secrets..."
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/client_id-prod.enc.txt > .secrets/client_id-prod.txt
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/client_secret-prod.enc.txt > .secrets/client_secret-prod.txt
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/infisical-agent-prod.enc.yaml > .secrets/infisical-agent-prod.yaml
+      - sops --decrypt --age "{{.AGE_KEY}}" .secrets/secret-template-prod.enc > .secrets/secret-template-prod
+      - echo "Infisical secrets decrypted."
+
+  fetch-prod-project-secrets-from-infisical:
+    cmds:
+      - echo "fetching project secrets from Infisical..."
+      - nohup infisical agent --silent --config .secrets/infisical-agent-prod.yaml > infisical_agent.log 2>&1 &
+      - |
+        retries=5
+        while [ $retries -gt 0 ]; do
+          if [ -f .env ]; then
+            echo "Secrets saved to .env"
+            break
+          else
+            echo "Waiting 5 seconds for the secrets to fetched from Infisical..."
+            sleep 5
+            retries=$((retries-1))
+          fi
+        done
+
+  fetch-dev-project-secrets-from-infisical:
+    cmds:
+      - echo "fetching project secrets from Infisical..."
+      - nohup infisical agent --silent --config .secrets/infisical-agent-dev.yaml > infisical_agent.log 2>&1 &
+      - |
+        retries=5
+        while [ $retries -gt 0 ]; do
+          if [ -f .env ]; then
+            echo "Secrets saved to .env"
+            break
+          else
+            echo "Waiting 5 seconds for the secrets to fetched from Infisical..."
+            sleep 5
+            retries=$((retries-1))
+          fi
+        done
+
+  validate-secrets:
+    cmds:
+      - echo "Validating fetched secrets..."
+      - |
+        if [ -s .env ]; then
+          echo "Secrets validation successful."
+          chmod 400 .env
+        else
+          echo "Secrets not fetched correctly."
+        fi
+
+  # inject-secrets-into-docker:
+  #   cmds:
+  #     - echo "Injecting secrets into Docker..."
+  #     - docker secret create db-password .secrets/client_secret.txt
+  #     - docker secret create db-username .secrets/client_id.txt
+  #     - echo "Secrets injected into Docker successfully."
+
+  # create-docker-secrets:
+  #   cmds:
+
+  export-age-key:
+    cmds:
+      - export SOPS_AGE_KEY_FILE=~/.secrets/age.key
+      
+  docker-start-prod:
+    cmds:
+      # - docker build --build-arg NODE_ENV=production -t strapi-prod .
+      - docker compose down 
+      - docker compose -f compose.yaml up --build -d
+
+  docker-start-dev:
+    cmds:
+      # - docker build --build-arg NODE_ENV=development -t strapi-dev .
+      - docker compose down 
+      - docker compose -f compose.yaml up --build -d
+
+  run-prod:
+    cmds:
+      - task delete-dotEnv-file
+      - task export-age-key
+      - task prompt-age-key
+      - task decrypt-prod-infisical-secrets
+      - task delete-age-key
+      - task fetch-prod-project-secrets-from-infisical
+      - task validate-secrets
+      - task delete-infisical-decrypted-secrets
+      - task docker-start-prod
+
+  run-dev:
+    cmds:
+      - task delete-dotEnv-file
+      - task prompt-age-key
+      - task decrypt-dev-infisical-secrets
+      - task delete-age-key
+      - task fetch-dev-project-secrets-from-infisical
+      - task validate-secrets
+      - task delete-infisical-decrypted-secrets
+      - task docker-start-dev
+    
+  update-infisical-secrets:
+    cmds:
+      - task prompt-age-key
+      - task encrypt-dev-infisical-secrets
+      # - task encrypt-prod-infisical-secrets
+      - task delete-infisical-decrypted-secrets
+
+  decrypt-infisical-secrets:
+    cmds:
+      - task prompt-age-key
+      - task decrypt-dev-infisical-secrets
+      - task decrypt-prod-infisical-secrets
+
+
+  # build:
+  #   deps: [secrets]
+  #   cmds:
+  #     - echo "Building the project..."
+  #     # Ajoute ici les commandes de build, par exemple:
+  #     # - npm install && npm run build
+  #     - echo "Project built."
+
+  # run:
+  #   deps: [build]
+  #   cmds:
+  #     - echo "Running the project..."
+  #     # Ajoute ici les commandes de run, par exemple:
+  #     # - npm start
+  #     - echo "Project running."

@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  api:
+    container_name: "nan_api_scrap_donations"
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    # image: api_donation
+    environment:
+      - CACHE_MINUTES=15
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.donation-api.rule=Host(`donation-api.roulerpouraider.fr`)
+      - traefik.http.routers.donation-api.entrypoints=web,websecure
+      - traefik.http.routers.donation-api.tls.certresolver=letsencryptresolver
+      - traefik.http.routers.donation-api.middlewares=donation-api-cors
+      - traefik.http.middlewares.donation-api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS
+      - traefik.http.middlewares.donation-api-cors.headers.accessControlAllowOriginList=http://localhost:3001,http://localhost:3000,https://rouler-pour-aider-git-staging-lmlc.vercel.app,https://roulerpouraider.fr,https://www.roulerpouraider.fr
+      - traefik.http.middlewares.donation-api-cors.headers.accessControlAllowHeaders=Content-Type,Authorization
+      - traefik.http.services.donation-api.loadbalancer.server.port=8000
+      - traefik.docker.network=traefik
+      - traefik.port=80
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    name: "traefik"
+    external: true

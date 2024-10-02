@@ -1,0 +1,50 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+.vercel
+
+.unlighthouse/
+
+# tmp
+/tmp/
+
+/public/oui/
+/public/backoffice/
+/public/hopital-necker-visite/
+
+/public/1ere-edition/*.png
+/public/1ere-edition/*.jpg
+/public/1ere-edition/*.jpeg
+
+/public/steps/*.jpeg
+/public/steps/*.jpg
+/public/steps/*.png
+
+/assets/*.pdf
+/assets/*.docx
+/assets/france-geojson.json
+
+/assets/Rouler pour aider dossier.pages
+
+.output

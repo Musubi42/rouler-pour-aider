@@ -1,0 +1,42 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "image": "node utils/fetchBackoffice.js",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "start": "nuxt start",
+    "generate": "GENERATE=true nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.0.6",
+    "@nuxt/image": "^1.1.0",
+    "@nuxtjs/i18n": "^8.0.0",
+    "@pinia/nuxt": "^0.5.1",
+    "@unlighthouse/nuxt": "^0.10.6",
+    "@vueuse/core": "^10.9.0",
+    "autoprefixer": "^10.4.16",
+    "axios": "^1.6.3",
+    "nuxt": "^3.9.0",
+    "nuxt-svgo": "^3.7.0",
+    "nuxt3-leaflet": "^1.0.12",
+    "postcss": "^8.4.32",
+    "sharp": "^0.33.3",
+    "tailwindcss": "^3.4.0",
+    "vue": "^3.4.3",
+    "vue-i18n": "^9.8.0",
+    "vue-number-animation": "^2.0.2",
+    "vue-router": "^4.2.5",
+    "vue3-toastify": "^0.2.1"
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.5",
+    "nuxt-mail": "^4.0.3",
+    "nuxt-swiper": "^1.2.2",
+    "qs": "^6.12.0"
+  },
+  "packageManager": "pnpm@8.6.11+sha256.6713c6bb13a7cd01d0cc86032ed1318188d10f4d87fd9aad6f131c81cb008551"
+}
