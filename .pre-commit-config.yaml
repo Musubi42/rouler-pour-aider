@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.27.0
+    hooks:
+      - id: ggshield
+        language_version: python3
+        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: forbid-unencrypted-secrets
+        name: Forbid committing unencrypted files in .secrets/ directory
+        entry: sh
+        language: system
+        args:
+          - '-c'
+          - |
+            if git diff --cached --name-only | grep -E '^\.secrets/.*' | grep -v '\.enc' >/dev/null; then
+              echo 'Error: You are trying to commit unencrypted files from the .secrets/ directory, which is forbidden.';
+              exit 1;
+            fi
+        stages: [commit]
