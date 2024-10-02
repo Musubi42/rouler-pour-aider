@@ -47,16 +47,12 @@ def get_donations():
     target_amount = re.findall(r"\d[\d\s,]*", target_amount_html.text)
     target_amount = re.sub(r"[\s,]", "", target_amount[0])
 
-    days_left_html = soup.find(id="show_days")
-    days_left = re.findall(r"\d+", days_left_html.span.text)[0]
-
     contributors_count_html = soup.select_one(".contributeurs span")
     contributors_count = contributors_count_html.text
 
     return {
         "current_amount": int(current_amount),
         "target_amount": int(target_amount),
-        "days_left": int(days_left),
         "contributors_count": int(contributors_count),
     }
 
