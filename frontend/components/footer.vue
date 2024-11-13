@@ -48,7 +48,7 @@
     <div class="border-t border-gray-300 mt-10 py-4">
       <div class="flex justify-center items-center flex-col md:flex-row my-auto gap-4">
         <img class="h-10 w-auto" src="/Grande-cause-nationale-Bouge-chaque-jour.png" alt="">
-        <p class="text-center mx-6" >Association labellisée Grande Cause Nationale par le ministère des Sports et des Jeux Olympiques et Paralympiques</p>
+        <p class="text-center mx-6" >Projet labellisé Grande Cause Nationale par le ministère des Sports et des Jeux Olympiques et Paralympiques</p>
       </div>
     </div>
 
